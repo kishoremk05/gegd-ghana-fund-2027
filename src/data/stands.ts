@@ -107,6 +107,18 @@ function makeStands(): Stand[] {
 
       for (let standRow = 0; standRow < 2; standRow += 1) {
         for (let standColumn = 0; standColumn < 10; standColumn += 1) {
+          const isRestroom1 = blockRow === 0 && blockColumn === 0 && standRow === 0 && standColumn === 0;
+          const isRestroom2 = blockRow === 0 && blockColumn === 3 && standRow === 0 && standColumn === 9;
+          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 0 && standColumn === 0;
+          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 0 && standColumn === 9;
+          const isManagement = blockRow === 0 && blockColumn === 1 && standColumn === 9;
+          const isPolice = blockRow === 5 && blockColumn === 1 && standColumn === 9;
+          const isATM = blockRow === 2 && blockColumn === 1 && standRow === 0 && standColumn === 9;
+
+          if (isRestroom1 || isRestroom2 || isRestroom3 || isRestroom4 || isManagement || isPolice || isATM) {
+            continue;
+          }
+
           const blockStandNumber = standRow * 10 + standColumn + 1;
           const number = (blockRow * 4 + blockColumn) * 20 + blockStandNumber;
           const status = STATUS_SEQUENCE[(number - 1) % STATUS_SEQUENCE.length];
