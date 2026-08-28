@@ -135,7 +135,7 @@ function makeStands(): Stand[] {
             number,
             label: id,
             status,
-            area: status === 'premium' ? 48 : 12, // Premium = 48m² (12m x 4m)
+            area: 12,
             type: status === 'premium' ? 'Premium Corner' : 'Standard Stand',
             price: status === 'premium' ? 'US$5,000' : 'US$3,360',
             industry: zone,

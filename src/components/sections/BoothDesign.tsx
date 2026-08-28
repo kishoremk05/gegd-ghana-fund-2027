@@ -10,13 +10,13 @@ const BOOTHS = [
   },
   {
     name: 'Corner Booth',
-    size: '24 m² · 6m × 4m',
+    size: '12 m² · 3m × 4m',
     description: 'Double visibility at aisle intersections with two open sides for increased foot traffic.',
     visual: 'corner' as const,
   },
   {
     name: 'Premium Booth',
-    size: '48 m² · 12m × 4m',
+    size: '12 m² · 3m × 4m',
     description: 'Maximum exhibition space for large displays, dedicated demo zones and premium positioning.',
     visual: 'premium' as const,
   },
@@ -31,8 +31,8 @@ const BOOTHS = [
 function BoothVisual({ type }: { type: 'standard' | 'corner' | 'premium' | 'outdoor' }) {
   const configs = {
     standard: { w: 120, h: 160, color: '#f0f4f8', stroke: '#aeb6c4', label: '3m × 4m' },
-    corner: { w: 240, h: 160, color: '#fef3c7', stroke: '#fbbf24', label: '6m × 4m' },
-    premium: { w: 320, h: 160, color: '#fdf9ed', stroke: '#e9b43e', label: '12m × 4m' },
+    corner: { w: 120, h: 160, color: '#fef3c7', stroke: '#fbbf24', label: '3m × 4m' },
+    premium: { w: 120, h: 160, color: '#fdf9ed', stroke: '#e9b43e', label: '3m × 4m' },
     outdoor: { w: 200, h: 200, color: '#eef5ff', stroke: '#599cff', label: '10m × 10m' },
   };
   const c = configs[type];
@@ -110,9 +110,16 @@ export function BoothDesign() {
         </div>
 
         <Reveal delay={200} className="mt-10 text-center">
-          <span className="inline-block text-xs text-ink-500 font-medium tracking-wider uppercase bg-ink-50 px-4 py-2 rounded-sm border border-ink-100">
+          <span className="inline-block text-xs text-ink-500 font-medium tracking-wider uppercase bg-ink-50 px-4 py-2 rounded-sm border border-ink-100 mb-4">
             Artist's Impression — GEGD 2027
           </span>
+          <div className="rounded overflow-hidden shadow-md border border-ink-100 max-w-3xl mx-auto">
+            <img 
+              src="/src/assets/stadium-exhibition.jpg" 
+              alt="Artist impression of the GEGD 2027 stadium exhibition layout" 
+              className="w-full h-auto object-cover"
+            />
+          </div>
         </Reveal>
       </div>
     </section>

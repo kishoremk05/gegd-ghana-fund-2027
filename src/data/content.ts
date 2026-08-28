@@ -105,8 +105,8 @@ export const STAND_PACKAGES: StandPackage[] = [
   },
   {
     name: 'Corner Stand',
-    size: '24 m²',
-    dimensions: '6m × 4m',
+    size: '12 m²',
+    dimensions: '3m × 4m',
     price: 'US$4,200',
     buttonText: 'Reserve Corner Stand',
     features: [
@@ -117,8 +117,8 @@ export const STAND_PACKAGES: StandPackage[] = [
   },
   {
     name: 'Premium Corner',
-    size: '48 m²',
-    dimensions: '12m × 4m',
+    size: '12 m²',
+    dimensions: '3m × 4m',
     price: 'US$5,000',
     buttonText: 'Reserve Premium Corner',
     features: [
@@ -189,8 +189,8 @@ export const FAQS: FAQItem[] = [
   { question: 'What is GEGD 2027?', answer: 'GEGD 2027 — the Ghana Economic Growth & Development Week — is a premier exhibition marketplace taking place from 16 to 23 January 2027 in Accra, Ghana. It brings manufacturers, producers, technology companies, exporters, investors, financial institutions, governments, distributors, buyers and professional service providers together in one of Africa\'s most commercially focused economic development programmes.' },
   { question: 'Is GEGD 2027 an exhibition or a trade fair?', answer: 'GEGD 2027 is more than an exhibition — it is a marketplace for business. It is designed to turn exhibition participation into commercial opportunity: display products, demonstrate technology, meet buyers, negotiate supply contracts, secure orders, appoint distributors, identify export markets, meet investors and establish strategic partnerships.' },
   { question: 'What is the standard stand size?', answer: 'The standard stand is 12 m² (3m × 4m), priced at US$3,360. It includes an enclosed exhibition unit with installation, LED signage, electrical socket, exhibition lighting, climate control, furniture and a hospitality package.' },
-  { question: 'What is the corner stand size?', answer: 'The corner stand is 24 m², priced at US$4,200. It offers enhanced visibility at aisle intersections and includes all standard stand features.' },
-  { question: 'What is the Premium Corner size?', answer: 'The Premium Corner stand is 48 m², priced at US$5,000. It provides maximum exhibition space and visibility for larger displays and demonstrations.' },
+  { question: 'What is the corner stand size?', answer: 'The corner stand is 12 m² (3m × 4m), priced at US$4,200. It offers enhanced visibility at aisle intersections and includes all standard stand features.' },
+  { question: 'What is the Premium Corner size?', answer: 'The Premium Corner stand is 12 m² (3m × 4m), priced at US$5,000. It provides maximum exhibition space and visibility for larger displays and demonstrations.' },
   { question: 'What is the outdoor stand size?', answer: 'The outdoor exhibition space is 100 m², priced at US$6,120. It is designed for large machinery, equipment demonstrations and outdoor displays.' },
   { question: 'Is there a multi-stand booking discount?', answer: 'Yes. If you book multiple stands together, the most expensive stand is charged at full price, and every additional stand receives a 10% discount off its base price.' },
   { question: 'How much is the reservation fee?', answer: 'A US$1,000 non-refundable reservation fee is required to reserve your stand. Payment of this fee does not constitute final stand allocation — stand allocation is confirmed only after the full invoice has been paid and the payment verified by the GEGD Secretariat.' },
