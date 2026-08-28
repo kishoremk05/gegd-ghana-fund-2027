@@ -137,7 +137,7 @@ function makeStands(): Stand[] {
             status,
             area: status === 'premium' ? 48 : 12, // Premium = 48m² (12m x 4m)
             type: status === 'premium' ? 'Premium Corner' : 'Standard Stand',
-            price: status === 'premium' ? 'US$11,640' : 'US$3,360',
+            price: status === 'premium' ? 'US$5,000' : 'US$3,360',
             industry: zone,
             zone: zone,
             company: companyName,
@@ -194,3 +194,28 @@ function makeOutdoorStands(): Stand[] {
 }
 
 export const STANDS: Stand[] = [...makeStands(), ...makeOutdoorStands()];
+
+export function calculateTotalStandsPrice(selectedStands: Stand[]): number {
+  if (selectedStands.length === 0) return 0;
+
+  const prices = selectedStands.map((stand) => {
+    const base = parseFloat(stand.price.replace(/[^\d.]/g, ''));
+    return isNaN(base) ? 0 : base;
+  });
+
+  // Sort prices descending (highest first)
+  prices.sort((a, b) => b - a);
+
+  // First (most expensive) stand is full price, subsequent stands get 10% discount
+  return prices.reduce((total, price, index) => {
+    if (index === 0) {
+      return total + price;
+    } else {
+      return total + price * 0.90;
+    }
+  }, 0);
+}
+
+export function formatCurrency(val: number): string {
+  return 'US$' + Math.round(val).toLocaleString('en-US');
+}

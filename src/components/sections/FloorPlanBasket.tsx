@@ -1,5 +1,5 @@
 import { ShoppingBag, X, ArrowRight, Trash2 } from 'lucide-react';
-import type { Stand } from '@/data/stands';
+import { type Stand, calculateTotalStandsPrice, formatCurrency } from '@/data/stands';
 
 interface FloorPlanBasketProps {
   selectedStands: Stand[];
@@ -18,6 +18,7 @@ export function FloorPlanBasket({
 
   // Calculate total price sum if price strings can be parsed, or count total area
   const totalArea = selectedStands.reduce((acc, s) => acc + s.area, 0);
+  const totalPrice = calculateTotalStandsPrice(selectedStands);
 
   return (
     <div className="absolute bottom-4 left-4 right-4 z-40 animate-slide-up pointer-events-auto">
@@ -34,6 +35,7 @@ export function FloorPlanBasket({
                 Selected Stands ({selectedStands.length})
               </span>
               <span className="text-xs text-slate-400">• {totalArea} m² Total</span>
+              <span className="text-xs text-gold-400 font-extrabold">• {formatCurrency(totalPrice)} Est. Total</span>
             </div>
             
             {/* Chips scroll container */}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Send, CheckCircle2, Building, Mail, Phone, User, MessageSquare } from 'lucide-react';
-import type { Stand } from '@/data/stands';
+import { type Stand, calculateTotalStandsPrice, formatCurrency } from '@/data/stands';
 import { supabase } from '@/lib/supabase';
 
 interface FloorPlanEnquiryProps {
@@ -27,12 +27,14 @@ export function FloorPlanEnquiry({
   if (!isOpen) return null;
 
   const totalArea = selectedStands.reduce((acc, s) => acc + s.area, 0);
+  const totalPrice = calculateTotalStandsPrice(selectedStands);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     const standLabels = selectedStands.map((s) => s.label).join(', ');
+    const fullNotes = `[Total Price Quoted: ${formatCurrency(totalPrice)}]\nSelected Stands: ${standLabels}\n\nUser Notes:\n${notes}`;
 
     try {
       // Try to insert into Supabase enquiries table
@@ -42,7 +44,7 @@ export function FloorPlanEnquiry({
           company,
           email,
           phone,
-          notes,
+          notes: fullNotes,
           stands: standLabels,
           created_at: new Date().toISOString(),
         },
@@ -111,9 +113,13 @@ export function FloorPlanEnquiry({
                       key={stand.id}
                       className="px-2.5 py-1 bg-white border border-slate-200 rounded-md text-xs font-bold text-slate-800 shadow-xs"
                     >
-                      {stand.label} ({stand.area}m²)
+                      {stand.label} ({stand.area}m² - {stand.price})
                     </span>
                   ))}
+                </div>
+                <div className="border-t border-slate-200/60 pt-2 flex justify-between items-center text-xs text-slate-700 font-bold">
+                  <span>Estimated Total (Excl. VAT):</span>
+                  <span className="text-gold-600 font-extrabold text-sm">{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
 
