@@ -874,7 +874,23 @@ export function FloorPlan() {
                   });
                 }}
                 onClearAll={() => setSelectedStands(new Set())}
-                onEnquire={() => setIsEnquiryOpen(true)}
+                onEnquire={() => {
+                  const totalArea = selectedStandsList.reduce((acc, s) => acc + s.area, 0);
+                  const pkgName = selectedStandsList.length === 1 ? selectedStandsList[0].type : `${selectedStandsList[0].type} (Multiple)`;
+                  const initiateEvent = new CustomEvent('initiate-booking', {
+                    detail: {
+                      step: 0, // Always start at Step 1 (Company Information) step 0
+                      package: pkgName,
+                      stands: selectedStandsList.map(s => ({
+                        id: s.id,
+                        block: s.block,
+                        price: s.price
+                      })),
+                      area: `${totalArea} m²`
+                    }
+                  });
+                  window.dispatchEvent(initiateEvent);
+                }}
               />
 
               {/* 100% Reset / View Button (Serves as Back to Overview) */}

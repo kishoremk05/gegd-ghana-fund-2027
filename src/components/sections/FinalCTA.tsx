@@ -32,8 +32,12 @@ export function FinalCTA() {
 
         <Reveal delay={200} className="mt-12 flex flex-wrap gap-4 justify-center">
           <a
-            href="#register"
-            onClick={(e) => { e.preventDefault(); document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' }); }}
+            href="#booking"
+            onClick={(e) => {
+              e.preventDefault();
+              const initiateEvent = new CustomEvent('initiate-booking', { detail: { step: 0 } });
+              window.dispatchEvent(initiateEvent);
+            }}
             className="btn-primary"
           >
             Reserve Your Stand

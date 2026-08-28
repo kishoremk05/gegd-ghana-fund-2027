@@ -52,10 +52,17 @@ export function Hero() {
           <p className="mt-6 text-base text-ink-400 leading-relaxed max-w-2xl animate-fade-up" style={{ animationDelay: '650ms', opacity: 0 }}>
             GEGD 2027 brings manufacturers, producers, technology companies, exporters, investors, financial institutions, governments, distributors, buyers and professional service providers together in one of Africa's most commercially focused economic development programmes.
           </p>
-
           {/* CTAs */}
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: '800ms', opacity: 0 }}>
-            <a href="#register" onClick={(e) => { e.preventDefault(); document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-primary">
+            <a
+              href="#booking"
+              onClick={(e) => {
+                e.preventDefault();
+                const initiateEvent = new CustomEvent('initiate-booking', { detail: { step: 0 } });
+                window.dispatchEvent(initiateEvent);
+              }}
+              className="btn-primary"
+            >
               Reserve Your Stand
               <ArrowRight size={18} />
             </a>

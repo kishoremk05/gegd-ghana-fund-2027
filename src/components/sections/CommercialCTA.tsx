@@ -29,8 +29,12 @@ export function CommercialCTA() {
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <a
-              href="#register"
-              onClick={(e) => { e.preventDefault(); document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' }); }}
+              href="#booking"
+              onClick={(e) => {
+                e.preventDefault();
+                const initiateEvent = new CustomEvent('initiate-booking', { detail: { step: 0 } });
+                window.dispatchEvent(initiateEvent);
+              }}
               className="btn-primary"
             >
               Reserve a Stand

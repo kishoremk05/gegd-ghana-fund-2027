@@ -56,6 +56,15 @@ export function StandPackages() {
 
               <div className="p-6 pt-0">
                 <button
+                  onClick={() => {
+                    const initiateEvent = new CustomEvent('initiate-booking', {
+                      detail: {
+                        step: 0, // Always start at Step 1 (Company Information) step 0
+                        package: pkg.name
+                      }
+                    });
+                    window.dispatchEvent(initiateEvent);
+                  }}
                   className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 font-bold text-sm tracking-wide uppercase rounded-sm transition-all duration-300 hover:-translate-y-0.5 ${
                     pkg.highlighted
                       ? 'bg-gold-500 text-ink-950 hover:bg-gold-400 hover:shadow-gold-glow'

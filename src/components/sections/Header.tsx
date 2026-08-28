@@ -137,8 +137,12 @@ export function Header() {
                 Exhibitor Login
               </a>
               <a
-                href="#register"
-                onClick={(e) => { e.preventDefault(); handleNavClick('#register'); }}
+                href="#booking"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const initiateEvent = new CustomEvent('initiate-booking', { detail: { step: 0 } });
+                  window.dispatchEvent(initiateEvent);
+                }}
                 className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 bg-gold-500 text-ink-950 font-bold text-sm tracking-wide uppercase rounded-sm hover:bg-gold-400 transition-all duration-300 hover:shadow-gold-glow hover:-translate-y-0.5"
               >
                 Reserve Your Stand
@@ -195,8 +199,13 @@ export function Header() {
           </div>
           <div className="p-5 mt-auto">
             <a
-              href="#register"
-              onClick={(e) => { e.preventDefault(); handleNavClick('#register'); }}
+              href="#booking"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileOpen(false);
+                const initiateEvent = new CustomEvent('initiate-booking', { detail: { step: 0 } });
+                window.dispatchEvent(initiateEvent);
+              }}
               className="btn-primary w-full"
             >
               Reserve Your Stand
