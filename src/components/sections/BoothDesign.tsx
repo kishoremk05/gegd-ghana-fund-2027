@@ -1,5 +1,6 @@
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Reveal } from '@/components/ui/Reveal';
+import stadiumExhibition from '@/assets/stadium-exhibition.jpg';
 
 const BOOTHS = [
   {
@@ -115,7 +116,7 @@ export function BoothDesign() {
           </span>
           <div className="rounded overflow-hidden shadow-md border border-ink-100 max-w-3xl mx-auto">
             <img 
-              src="/src/assets/stadium-exhibition.jpg" 
+              src={stadiumExhibition} 
               alt="Artist impression of the GEGD 2027 stadium exhibition layout" 
               className="w-full h-auto object-cover"
             />
