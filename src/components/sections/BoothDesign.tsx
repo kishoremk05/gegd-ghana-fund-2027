@@ -1,6 +1,6 @@
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Reveal } from '@/components/ui/Reveal';
-import stadiumExhibition from '@/assets/stadium-exhibition.jpg';
+import stadiumExhibition from '@/assets/stadium-exhibition.png';
 
 const BOOTHS = [
   {
