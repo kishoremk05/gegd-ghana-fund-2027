@@ -1,6 +1,7 @@
-import { Mail, Phone, ArrowRight, MapPin } from 'lucide-react';
+import { Mail, Phone, ArrowRight, MapPin, ExternalLink, Globe } from 'lucide-react';
 
 const FOOTER_LINKS = [
+  { label: 'GEGD Main Site', href: 'https://gegd.ghana-fund.com/', external: true },
   { label: 'Exhibition', href: '#overview' },
   { label: 'Buyers', href: '#buyers' },
   { label: 'Visitors', href: '#register' },
@@ -45,6 +46,17 @@ export function Footer() {
               <Phone size={16} className="text-gold-500" />
               <span>900 600 100</span>
             </div>
+            <div className="mt-3 flex items-center gap-2 text-sm text-gold-400">
+              <Globe size={16} className="text-gold-500" />
+              <a
+                href="https://gegd.ghana-fund.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline flex items-center gap-1 font-medium text-xs tracking-wide"
+              >
+                gegd.ghana-fund.com <ExternalLink size={11} />
+              </a>
+            </div>
           </div>
 
           {/* Links */}
@@ -53,14 +65,27 @@ export function Footer() {
             <ul className="space-y-3">
               {FOOTER_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => { e.preventDefault(); document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' }); }}
-                    className="group flex items-center gap-2 text-sm text-ink-300 hover:text-gold-400 transition-colors"
-                  >
-                    <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-gold-500" />
-                    {link.label}
-                  </a>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 text-sm text-gold-400 hover:text-gold-300 font-semibold transition-colors"
+                    >
+                      <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-gold-500" />
+                      {link.label}
+                      <ExternalLink size={12} className="opacity-80" />
+                    </a>
+                  ) : (
+                    <a
+                      href={link.href}
+                      onClick={(e) => { e.preventDefault(); document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' }); }}
+                      className="group flex items-center gap-2 text-sm text-ink-300 hover:text-gold-400 transition-colors"
+                    >
+                      <ArrowRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-gold-500" />
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

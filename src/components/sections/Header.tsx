@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronRight, ChevronDown, ExternalLink } from 'lucide-react';
 import { useScrolled, useActiveSection } from '@/hooks/useScroll';
 
 const PRIMARY_ITEMS = [
@@ -130,6 +130,15 @@ export function Header() {
             {/* Right side */}
             <div className="flex items-center gap-3">
               <a
+                href="https://gegd.ghana-fund.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300 transition-all px-3 py-1.5 rounded bg-gold-500/10 border border-gold-500/30 hover:border-gold-500/60 shadow-sm"
+              >
+                <span>About GEGD</span>
+                <ExternalLink size={13} />
+              </a>
+              <a
                 href="#login"
                 onClick={(e) => e.preventDefault()}
                 className="hidden md:inline-flex text-sm font-medium text-ink-200 hover:text-gold-400 transition-colors"
@@ -178,6 +187,15 @@ export function Header() {
             </button>
           </div>
           <div className="p-5 flex flex-col gap-1">
+            <a
+              href="https://gegd.ghana-fund.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-4 py-3 text-gold-400 bg-gold-500/10 border border-gold-500/30 rounded-sm font-semibold text-sm transition-all mb-2"
+            >
+              <span>About GEGD</span>
+              <ExternalLink size={16} />
+            </a>
             {[...PRIMARY_ITEMS, ...SECONDARY_ITEMS].map((item) => (
               <a
                 key={item.href}
