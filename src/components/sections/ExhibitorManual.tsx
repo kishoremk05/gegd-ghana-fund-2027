@@ -43,9 +43,6 @@ export function ExhibitorManual() {
                 Download Exhibitor Manual
                 <ArrowRight size={16} />
               </button>
-              <p className="mt-3 text-xs text-ink-400">
-                Demo button — no actual PDF is connected.
-              </p>
             </div>
           </div>
         </Reveal>

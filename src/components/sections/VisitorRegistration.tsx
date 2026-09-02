@@ -99,9 +99,6 @@ export function VisitorRegistration() {
               Register as a Visitor
               <ArrowRight size={18} />
             </button>
-            <p className="mt-3 text-xs text-ink-400">
-              Frontend demo only — no real registration is submitted.
-            </p>
           </div>
         </Reveal>
       </div>

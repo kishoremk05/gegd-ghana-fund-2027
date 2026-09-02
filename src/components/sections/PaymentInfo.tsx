@@ -74,7 +74,7 @@ export function PaymentInfo() {
             </div>
             <div className="mt-2 p-5 bg-ink-50 rounded-sm border border-ink-100">
               <p className="text-sm text-ink-600 leading-relaxed">
-                This is a frontend demo. No actual payment processing is implemented. Payment instructions and details will be provided by the GEGD Secretariat upon reservation.
+                Payment instructions and details will be provided by the GEGD Secretariat upon reservation.
               </p>
             </div>
           </Reveal>

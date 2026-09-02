@@ -207,7 +207,7 @@ export function BookingPreview() {
                   Booking Application Submitted!
                 </h4>
                 <p className="text-sm text-slate-600 max-w-md">
-                  Thank you for trying our Online Booking flow. Your preview details have been submitted to the secretariat and will be reviewed shortly.
+                  Thank you for submitting your booking application. Your details have been received by the secretariat and will be reviewed shortly.
                 </p>
                 <button
                   onClick={handleReset}
