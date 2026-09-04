@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Search, ZoomIn, ZoomOut, RotateCcw, Download, X, MapPin, Maximize2, DollarSign, Tag, ArrowRight, Building, Map, Check, ChevronUp, ChevronDown, ChevronLeft, ChevronRight
 } from 'lucide-react';
-import { STATUS_LABELS, STATUS_COLORS, type Stand, type StandStatus, STANDS, ZONE_MAP, ZONE_TINTS } from '@/data/stands';
+import { STATUS_LABELS, STATUS_COLORS, BOOTH_TYPE_COLORS, type Stand, type StandStatus, STANDS, ZONE_MAP, ZONE_TINTS } from '@/data/stands';
 import { INDUSTRIES } from '@/data/content';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Reveal } from '@/components/ui/Reveal';
@@ -14,13 +14,13 @@ const VIEWBOX_W = 1440;
 const VIEWBOX_H = 1120; // Expanded to accommodate the Outdoor strip
 
 const FACILITY_ZONES = [
-  { x: 60, y: 82, w: 30, h: 40, label: 'restroom' },
-  { x: 670, y: 82, w: 30, h: 80, label: 'office\nmanagement' },
-  { x: 1350, y: 82, w: 30, h: 40, label: 'restroom' },
-  { x: 670, y: 322, w: 30, h: 40, label: 'ATM' },
-  { x: 60, y: 682, w: 30, h: 40, label: 'restroom' },
-  { x: 670, y: 682, w: 30, h: 80, label: 'office\npolice' },
-  { x: 1350, y: 682, w: 30, h: 40, label: 'restroom' },
+  { x: 60, y: 82, w: 60, h: 40, label: 'restroom' },
+  { x: 640, y: 82, w: 60, h: 40, label: 'office\nmanagement' },
+  { x: 1320, y: 82, w: 60, h: 40, label: 'restroom' },
+  { x: 640, y: 322, w: 60, h: 40, label: 'ATM' },
+  { x: 60, y: 682, w: 60, h: 40, label: 'restroom' },
+  { x: 670, y: 722, w: 30, h: 40, label: 'office\npolice' },
+  { x: 1320, y: 682, w: 60, h: 40, label: 'restroom' },
 ];
 
 const AISLE_LABELS = [
@@ -349,22 +349,48 @@ export function FloorPlan() {
           </div>
 
           {/* Legend / Stand Count Summary Bar */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-6 bg-slate-50 border border-slate-200/60 rounded px-4 py-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Availability Status:</span>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              {(Object.keys(STATUS_LABELS) as StandStatus[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(statusFilter === s ? null : s)}
-                  className={`flex items-center gap-2.5 text-xs font-semibold transition-all ${
-                    statusFilter === s ? 'text-slate-900 scale-105 font-bold' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <span className={`w-3.5 h-3.5 rounded-sm border ${STATUS_COLORS[s].bg} shadow-sm`} style={{ borderColor: STATUS_COLORS[s].stroke }} />
-                  <span>{STATUS_LABELS[s]}</span>
-                  <span className="bg-white border border-slate-200/80 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-slate-500 shadow-sm">{stats[s] ?? 0}</span>
-                </button>
-              ))}
+          <div className="flex flex-col gap-3 mb-6 bg-slate-50 border border-slate-200/60 rounded px-4 py-3">
+            {/* Booth Types */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pb-2.5 border-b border-slate-200/60">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Booth Types:</span>
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                  <span className="w-3.5 h-3.5 rounded-sm border bg-white border-slate-300 shadow-sm" />
+                  <span>Standard (12m² — US$3,360)</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-orange-700">
+                  <span className="w-3.5 h-3.5 rounded-sm border bg-orange-50 border-orange-500 shadow-sm flex items-center justify-center text-[9px] font-black text-orange-700">C</span>
+                  <span>Corner Booth C (12m² — US$4,200)</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-amber-800">
+                  <span className="w-3.5 h-3.5 rounded-sm border bg-amber-100 border-amber-500 shadow-sm flex items-center justify-center text-[9px] font-black text-amber-800">P</span>
+                  <span>Premium Booth P (12m² — US$5,000)</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-700">
+                  <span className="w-3.5 h-3.5 rounded-sm border bg-blue-50 border-blue-400 shadow-sm" />
+                  <span>Outdoor (100m² — US$6,120)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Availability Statuses */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Availability:</span>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {(Object.keys(STATUS_LABELS) as StandStatus[]).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setStatusFilter(statusFilter === s ? null : s)}
+                    className={`flex items-center gap-2 text-xs font-semibold transition-all ${
+                      statusFilter === s ? 'text-slate-900 scale-105 font-bold' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    <span className={`w-3.5 h-3.5 rounded-sm border ${STATUS_COLORS[s].bg} shadow-sm`} style={{ borderColor: STATUS_COLORS[s].stroke }} />
+                    <span>{STATUS_LABELS[s]}</span>
+                    <span className="bg-white border border-slate-200/80 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-slate-500 shadow-sm">{stats[s] ?? 0}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -457,12 +483,27 @@ export function FloorPlan() {
                           if (!isInsideBlock) return null;
                         }
 
-                        const colors = STATUS_COLORS[stand.status];
+                        const statusColors = STATUS_COLORS[stand.status];
+                        const boothTypeConfig = BOOTH_TYPE_COLORS[stand.boothType || 'standard'];
+                        
+                        // Use booth type colors for available stands, and status colors for non-available (reserved/confirmed/etc.)
+                        const baseFill = stand.status === 'available' ? boothTypeConfig.fill : statusColors.fill;
+                        const baseStroke = stand.status === 'available' ? boothTypeConfig.stroke : statusColors.stroke;
+                        const baseText = (stand.boothType === 'corner' || stand.boothType === 'premium') ? boothTypeConfig.text : (stand.status === 'available' ? boothTypeConfig.text : statusColors.text);
+
                         const dimmed = isDimmed(stand);
                         const isDrawerSelected = selectedStand?.id === stand.id;
                         const isMultiSelected = selectedStands.has(stand.id);
                         const isHovered = hovered?.id === stand.id;
                         const isInteractive = zoom >= 1.25;
+
+                        // Display text logic: C/P labels at overview zoom, full ID when zoomed in or outdoor
+                        let labelText = '';
+                        if (selectedBlock || zoom >= 1.2 || stand.status === 'outdoor' || isDrawerSelected || isHovered) {
+                          labelText = stand.label;
+                        } else {
+                          labelText = boothTypeConfig.label; // 'C' for corner, 'P' for premium, '' for standard
+                        }
 
                         return (
                           <g
@@ -479,15 +520,13 @@ export function FloorPlan() {
                               y={stand.y}
                               width={stand.w}
                               height={stand.h}
-                              fill={isDrawerSelected ? '#e9b43e' : isMultiSelected ? '#fef3c7' : colors.fill}
-                              stroke={isDrawerSelected ? '#bc7d23' : isMultiSelected ? '#f59e0b' : colors.stroke}
-                              strokeWidth={isDrawerSelected || isMultiSelected ? 1.8 / zoom : 0.8 / zoom}
+                              fill={isDrawerSelected ? '#e9b43e' : isMultiSelected ? '#fef3c7' : baseFill}
+                              stroke={isDrawerSelected ? '#bc7d23' : isMultiSelected ? '#f59e0b' : baseStroke}
+                              strokeWidth={isDrawerSelected || isMultiSelected ? 1.8 / zoom : (stand.boothType === 'corner' || stand.boothType === 'premium' ? 1 / zoom : 0.6 / zoom)}
                               rx={0}
                               className="transition-all"
                               style={isHovered && !isDrawerSelected ? { filter: 'brightness(0.92)' } : undefined}
                             />
-
-
 
                             {/* Multi-selection checkmark overlay */}
                             {isMultiSelected && (
@@ -505,18 +544,63 @@ export function FloorPlan() {
                             )}
 
                             {/* Stand label text */}
-                            {!isMultiSelected && (selectedBlock || zoom >= 1.2 || stand.status === 'outdoor' || isDrawerSelected || isHovered) && (
-                              <text
-                                x={stand.x + stand.w / 2}
-                                y={stand.y + stand.h / 2 + 2}
-                                textAnchor="middle"
-                                fontSize={stand.status === 'outdoor' ? 9 : selectedBlock ? 7.5 : 5}
-                                fontWeight="800"
-                                fill={isDrawerSelected ? '#1a1d23' : colors.text}
-                                className="pointer-events-none tracking-tight font-mono"
-                              >
-                                {stand.label}
-                              </text>
+                            {!isMultiSelected && (
+                              <>
+                                {(selectedBlock || zoom >= 1.2 || stand.status === 'outdoor' || isDrawerSelected || isHovered) ? (
+                                  (stand.boothType === 'corner' || stand.boothType === 'premium') ? (
+                                    <g className="pointer-events-none select-none">
+                                      <text
+                                        x={stand.x + stand.w / 2}
+                                        y={stand.y + 14}
+                                        textAnchor="middle"
+                                        fontSize={selectedBlock ? 8.5 : 7}
+                                        fontWeight="900"
+                                        fill={boothTypeConfig.text}
+                                        className="pointer-events-none tracking-tight font-mono select-none"
+                                      >
+                                        {boothTypeConfig.label}
+                                      </text>
+                                      <text
+                                        x={stand.x + stand.w / 2}
+                                        y={stand.y + (selectedBlock ? 28 : 26)}
+                                        textAnchor="middle"
+                                        fontSize={selectedBlock ? 7.5 : 5.5}
+                                        fontWeight="800"
+                                        fill={isDrawerSelected ? '#1a1d23' : (stand.status === 'available' ? '#1e293b' : baseText)}
+                                        className="pointer-events-none tracking-tight font-mono select-none"
+                                      >
+                                        {stand.label}
+                                      </text>
+                                    </g>
+                                  ) : (
+                                    <text
+                                      x={stand.x + stand.w / 2}
+                                      y={stand.y + stand.h / 2 + 2}
+                                      textAnchor="middle"
+                                      fontSize={stand.status === 'outdoor' ? 9 : selectedBlock ? 7.5 : 5.5}
+                                      fontWeight="800"
+                                      fill={isDrawerSelected ? '#1a1d23' : baseText}
+                                      className="pointer-events-none tracking-tight font-mono select-none"
+                                    >
+                                      {stand.label}
+                                    </text>
+                                  )
+                                ) : (
+                                  boothTypeConfig.label !== '' && (
+                                    <text
+                                      x={stand.x + stand.w / 2}
+                                      y={stand.y + stand.h / 2 + 3}
+                                      textAnchor="middle"
+                                      fontSize={8.5}
+                                      fontWeight="900"
+                                      fill={baseText}
+                                      className="pointer-events-none tracking-tight font-mono select-none"
+                                    >
+                                      {boothTypeConfig.label}
+                                    </text>
+                                  )
+                                )}
+                              </>
                             )}
                           </g>
                         );

@@ -60,10 +60,8 @@ export function BookingPreview() {
         setSpaceReq(detail.area);
       } else if (detail.package) {
         // Pre-fill space requirements based on package name
-        if (detail.package.toLowerCase().includes('standard')) setSpaceReq('12 m²');
-        else if (detail.package.toLowerCase().includes('corner')) setSpaceReq('24 m²');
-        else if (detail.package.toLowerCase().includes('premium')) setSpaceReq('48 m²');
-        else if (detail.package.toLowerCase().includes('outdoor')) setSpaceReq('100 m²');
+        if (detail.package.toLowerCase().includes('outdoor')) setSpaceReq('100 m²');
+        else setSpaceReq('12 m²');
       }
 
       if (detail.stands && detail.stands.length > 0) {

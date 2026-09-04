@@ -1,4 +1,5 @@
 export type StandStatus = 'available' | 'reserved' | 'confirmed' | 'premium' | 'outdoor' | 'sponsor';
+export type BoothType = 'standard' | 'corner' | 'premium' | 'outdoor';
 
 export interface Stand {
   id: string;
@@ -7,6 +8,7 @@ export interface Stand {
   number: number;
   label: string;
   status: StandStatus;
+  boothType: BoothType;
   area: number;
   type: string;
   price: string;
@@ -29,12 +31,19 @@ export const STATUS_LABELS: Record<StandStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<StandStatus, { fill: string; stroke: string; text: string; bg: string; dot: string }> = {
-  available: { fill: '#f8fafc', stroke: '#cbd5e1', text: '#475569', bg: 'bg-slate-50', dot: 'bg-slate-400' },
+  available: { fill: '#ffffff', stroke: '#cbd5e1', text: '#475569', bg: 'bg-slate-50', dot: 'bg-slate-400' },
   reserved: { fill: '#fef3c7', stroke: '#f59e0b', text: '#92400e', bg: 'bg-amber-100', dot: 'bg-amber-500' },
   confirmed: { fill: '#dcfce7', stroke: '#22c55e', text: '#166534', bg: 'bg-green-100', dot: 'bg-green-500' },
   premium: { fill: '#fffbeb', stroke: '#fbbf24', text: '#b45309', bg: 'bg-yellow-50', dot: 'bg-yellow-500' },
   outdoor: { fill: '#eff6ff', stroke: '#3b82f6', text: '#1e40af', bg: 'bg-blue-50', dot: 'bg-blue-500' },
   sponsor: { fill: '#faf5ff', stroke: '#a855f7', text: '#6b21a8', bg: 'bg-purple-50', dot: 'bg-purple-500' },
+};
+
+export const BOOTH_TYPE_COLORS: Record<BoothType, { fill: string; stroke: string; text: string; label: string; bg: string }> = {
+  standard: { fill: '#ffffff', stroke: '#cbd5e1', text: '#64748b', label: '', bg: 'bg-slate-50' },
+  corner: { fill: '#ffffff', stroke: '#475569', text: '#2563eb', label: 'C', bg: 'bg-blue-50' },
+  premium: { fill: '#ffffff', stroke: '#475569', text: '#dc2626', label: 'P', bg: 'bg-red-50' },
+  outdoor: { fill: '#eff6ff', stroke: '#3b82f6', text: '#1e40af', label: 'OUT', bg: 'bg-blue-50' },
 };
 
 // 15 Zones Mapping onto 24 Blocks (6 rows x 4 columns)
@@ -84,8 +93,36 @@ const SEED_COMPANIES: Record<number, string> = {
 
 const STATUS_SEQUENCE: StandStatus[] = [
   'available', 'available', 'available', 'reserved', 'available',
-  'confirmed', 'available', 'premium', 'available', 'reserved',
+  'confirmed', 'available', 'available', 'available', 'reserved',
 ];
+
+function isPremiumStand(blockRow: number, blockColumn: number, standRow: number, standColumn: number): boolean {
+  // Block A3 (blockRow 2, blockColumn 0): standCol 0 (both rows)
+  if (blockRow === 2 && blockColumn === 0 && standColumn === 0) return true;
+
+  // Block A4 (blockRow 3, blockColumn 0): standCol 0 (both rows)
+  if (blockRow === 3 && blockColumn === 0 && standColumn === 0) return true;
+
+  // Block B2 (blockRow 1, blockColumn 1):
+  // standRow 0, standCol 9 (shifted right to col 9)
+  if (blockRow === 1 && blockColumn === 1 && standRow === 0 && standColumn === 9) return true;
+  // standRow 1, standCols 6, 7, 8, 9 (shifted right to col 9)
+  if (blockRow === 1 && blockColumn === 1 && standRow === 1 && [6, 7, 8, 9].includes(standColumn)) return true;
+
+  // Block C2 (blockRow 1, blockColumn 2): standCol 0 (both rows)
+  if (blockRow === 1 && blockColumn === 2 && standColumn === 0) return true;
+
+  // Block B3 (blockRow 2, blockColumn 1):
+  // standRow 0, standCol 6, 7 (shifted right to left of ATM)
+  if (blockRow === 2 && blockColumn === 1 && standRow === 0 && (standColumn === 6 || standColumn === 7)) return true;
+  // standRow 1, standCol 9 (right corner P only)
+  if (blockRow === 2 && blockColumn === 1 && standRow === 1 && standColumn === 9) return true;
+
+  // Block C3 (blockRow 2, blockColumn 2): standCol 0 (both rows)
+  if (blockRow === 2 && blockColumn === 2 && standColumn === 0) return true;
+
+  return false;
+}
 
 function makeStands(): Stand[] {
   const stands: Stand[] = [];
@@ -107,13 +144,14 @@ function makeStands(): Stand[] {
 
       for (let standRow = 0; standRow < 2; standRow += 1) {
         for (let standColumn = 0; standColumn < 10; standColumn += 1) {
-          const isRestroom1 = blockRow === 0 && blockColumn === 0 && standRow === 0 && standColumn === 0;
-          const isRestroom2 = blockRow === 0 && blockColumn === 3 && standRow === 0 && standColumn === 9;
-          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 0 && standColumn === 0;
-          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 0 && standColumn === 9;
-          const isManagement = blockRow === 0 && blockColumn === 1 && standColumn === 9;
-          const isPolice = blockRow === 5 && blockColumn === 1 && standColumn === 9;
-          const isATM = blockRow === 2 && blockColumn === 1 && standRow === 0 && standColumn === 9;
+          // Facilities check
+          const isRestroom1 = blockRow === 0 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
+          const isRestroom2 = blockRow === 0 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
+          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isManagement = blockRow === 0 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isPolice = blockRow === 5 && blockColumn === 1 && standRow === 1 && standColumn === 9;
+          const isATM = blockRow === 2 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
 
           if (isRestroom1 || isRestroom2 || isRestroom3 || isRestroom4 || isManagement || isPolice || isATM) {
             continue;
@@ -128,6 +166,29 @@ function makeStands(): Stand[] {
             ? (SEED_COMPANIES[number] || 'Exhibitor Company Ltd')
             : undefined;
 
+          // Determine booth type: Premium > Corner > Standard
+          const isPrem = isPremiumStand(blockRow, blockColumn, standRow, standColumn);
+          let isCorn = (standColumn === 0 || standColumn === 9);
+
+          // Remove right corner C booths for Block B3 (blockRow 2, blockColumn 1)
+          if (blockRow === 2 && blockColumn === 1 && standColumn === 9) {
+            isCorn = false;
+          }
+
+          let boothType: BoothType = 'standard';
+          let typeLabel = 'Standard Stand';
+          let priceLabel = 'US$3,360';
+
+          if (isPrem) {
+            boothType = 'premium';
+            typeLabel = 'Premium Booth';
+            priceLabel = 'US$5,000';
+          } else if (isCorn) {
+            boothType = 'corner';
+            typeLabel = 'Corner Stand';
+            priceLabel = 'US$4,200';
+          }
+
           stands.push({
             id,
             block,
@@ -135,9 +196,10 @@ function makeStands(): Stand[] {
             number,
             label: id,
             status,
+            boothType,
             area: 12,
-            type: status === 'premium' ? 'Premium Corner' : 'Standard Stand',
-            price: status === 'premium' ? 'US$5,000' : 'US$3,360',
+            type: typeLabel,
+            price: priceLabel,
             industry: zone,
             zone: zone,
             company: companyName,
@@ -176,6 +238,7 @@ function makeOutdoorStands(): Stand[] {
         number: 480 + idx,
         label: id,
         status,
+        boothType: 'outdoor',
         area: 100,
         type: 'Outdoor Exhibition',
         price: 'US$6,120',
@@ -219,3 +282,4 @@ export function calculateTotalStandsPrice(selectedStands: Stand[]): number {
 export function formatCurrency(val: number): string {
   return 'US$' + Math.round(val).toLocaleString('en-US');
 }
+

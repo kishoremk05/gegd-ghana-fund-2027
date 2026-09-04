@@ -50,8 +50,20 @@ const INDUSTRIES = [
 
 const STATUS_SEQUENCE = [
   'available', 'available', 'available', 'reserved', 'available',
-  'confirmed', 'available', 'premium', 'available', 'reserved',
+  'confirmed', 'available', 'available', 'available', 'reserved',
 ];
+
+function isPremiumStand(blockRow, blockColumn, standRow, standColumn) {
+  if (blockRow === 2 && blockColumn === 0 && standColumn === 0) return true;
+  if (blockRow === 3 && blockColumn === 0 && standColumn === 0) return true;
+  if (blockRow === 1 && blockColumn === 1 && standRow === 0 && standColumn === 9) return true;
+  if (blockRow === 1 && blockColumn === 1 && standRow === 1 && [6, 7, 8, 9].includes(standColumn)) return true;
+  if (blockRow === 1 && blockColumn === 2 && standColumn === 0) return true;
+  if (blockRow === 2 && blockColumn === 1 && standRow === 0 && (standColumn === 6 || standColumn === 7)) return true;
+  if (blockRow === 2 && blockColumn === 1 && standRow === 1 && standColumn === 9) return true;
+  if (blockRow === 2 && blockColumn === 2 && standColumn === 0) return true;
+  return false;
+}
 
 function makeStands() {
   const stands = [];
@@ -62,7 +74,7 @@ function makeStands() {
   const left = 60;
   const top = 82;
   const standWidth = 30;
-  const standHeight = 34;
+  const standHeight = 40;
 
   for (let blockRow = 0; blockRow < 6; blockRow += 1) {
     for (let blockColumn = 0; blockColumn < 4; blockColumn += 1) {
@@ -72,10 +84,43 @@ function makeStands() {
 
       for (let standRow = 0; standRow < 2; standRow += 1) {
         for (let standColumn = 0; standColumn < 10; standColumn += 1) {
+          const isRestroom1 = blockRow === 0 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
+          const isRestroom2 = blockRow === 0 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
+          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isManagement = blockRow === 0 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          const isPolice = blockRow === 5 && blockColumn === 1 && standRow === 1 && standColumn === 9;
+          const isATM = blockRow === 2 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+
+          if (isRestroom1 || isRestroom2 || isRestroom3 || isRestroom4 || isManagement || isPolice || isATM) {
+            continue;
+          }
+
           const blockStandNumber = standRow * 10 + standColumn + 1;
           const number = (blockRow * 4 + blockColumn) * 20 + blockStandNumber;
           const status = STATUS_SEQUENCE[(number - 1) % STATUS_SEQUENCE.length];
           const id = `${block}-${String(number).padStart(3, '0')}`;
+
+          const isPrem = isPremiumStand(blockRow, blockColumn, standRow, standColumn);
+          let isCorn = (standColumn === 0 || standColumn === 9);
+
+          if (blockRow === 2 && blockColumn === 1 && standColumn === 9) {
+            isCorn = false;
+          }
+
+          let boothType = 'standard';
+          let typeLabel = 'Standard Stand';
+          let priceLabel = 'US$3,360';
+
+          if (isPrem) {
+            boothType = 'premium';
+            typeLabel = 'Premium Booth';
+            priceLabel = 'US$5,000';
+          } else if (isCorn) {
+            boothType = 'corner';
+            typeLabel = 'Corner Stand';
+            priceLabel = 'US$4,200';
+          }
 
           stands.push({
             id,
@@ -84,9 +129,10 @@ function makeStands() {
             number,
             label: id,
             status,
-            area: status === 'premium' ? 48 : 12,
-            type: status === 'premium' ? 'Premium Corner' : 'Standard Stand',
-            price: status === 'premium' ? 'US$11,640' : 'US$3,360',
+            booth_type: boothType,
+            area: 12,
+            type: typeLabel,
+            price: priceLabel,
             industry: INDUSTRIES[(number - 1) % INDUSTRIES.length],
             x: blockX + standColumn * standWidth,
             y: blockY + standRow * standHeight,
