@@ -10,42 +10,50 @@ import { supabase } from '@/lib/supabase';
 import { FloorPlanBasket } from './FloorPlanBasket';
 import { FloorPlanEnquiry } from './FloorPlanEnquiry';
 
-const VIEWBOX_W = 1440;
-const VIEWBOX_H = 1120; // Expanded to accommodate the Outdoor strip
+const VIEWBOX_X = -100;
+const VIEWBOX_Y = -125;
+const VIEWBOX_W = 1600;
+const VIEWBOX_H = 1280; // Accommodates hall and outdoor zone with generous 50px uniform margin padding on all 4 sides
 
 const FACILITY_ZONES = [
-  { x: 60, y: 82, w: 60, h: 40, label: 'restroom' },
-  { x: 640, y: 82, w: 60, h: 40, label: 'office\nmanagement' },
-  { x: 1320, y: 82, w: 60, h: 40, label: 'restroom' },
-  { x: 640, y: 322, w: 60, h: 40, label: 'ATM' },
-  { x: 60, y: 682, w: 60, h: 40, label: 'restroom' },
-  { x: 670, y: 722, w: 30, h: 40, label: 'office\npolice' },
-  { x: 1320, y: 682, w: 60, h: 40, label: 'restroom' },
+  { x: 40, y: 40, w: 60, h: 40, label: 'restroom' },
+  { x: 620, y: 40, w: 60, h: 40, label: 'office\nmanagement' },
+  { x: 1300, y: 40, w: 60, h: 40, label: 'restroom' },
+  { x: 620, y: 280, w: 60, h: 40, label: 'ATM' },
+  { x: 40, y: 680, w: 60, h: 40, label: 'restroom' },
+  { x: 650, y: 680, w: 30, h: 40, label: 'office\npolice' },
+  { x: 1300, y: 680, w: 60, h: 40, label: 'restroom' },
 ];
 
 const AISLE_LABELS = [
-  { x: 380, y: 122, label: '4m' },
-  { x: 720, y: 122, label: '4m' },
-  { x: 1060, y: 122, label: '4m' },
-  { x: 380, y: 242, label: '4m' },
-  { x: 720, y: 242, label: '4m' },
-  { x: 1060, y: 242, label: '4m' },
-  { x: 380, y: 362, label: '4m' },
-  { x: 720, y: 362, label: '4m' },
-  { x: 1060, y: 362, label: '4m' },
-  { x: 380, y: 482, label: '4m' },
-  { x: 720, y: 482, label: '4m' },
-  { x: 1060, y: 482, label: '4m' },
-  { x: 380, y: 602, label: '4m' },
-  { x: 720, y: 602, label: '4m' },
-  { x: 1060, y: 602, label: '4m' },
-  { x: 380, y: 722, label: '4m' },
-  { x: 720, y: 722, label: '4m' },
-  { x: 1060, y: 722, label: '4m' },
+  // 3 Vertical Aisles (x = 360, 700, 1040) positioned directly at the sides of the blocks, rendered horizontally left-to-right
+  { x: 360, y: 80, label: '4m aisle' },
+  { x: 700, y: 80, label: '4m aisle' },
+  { x: 1040, y: 80, label: '4m aisle' },
+
+  { x: 360, y: 200, label: '4m aisle' },
+  { x: 700, y: 200, label: '4m aisle' },
+  { x: 1040, y: 200, label: '4m aisle' },
+
+  { x: 360, y: 320, label: '4m aisle' },
+  { x: 700, y: 320, label: '4m aisle' },
+  { x: 1040, y: 320, label: '4m aisle' },
+
+  { x: 360, y: 440, label: '4m aisle' },
+  { x: 700, y: 440, label: '4m aisle' },
+  { x: 1040, y: 440, label: '4m aisle' },
+
+  { x: 360, y: 560, label: '4m aisle' },
+  { x: 700, y: 560, label: '4m aisle' },
+  { x: 1040, y: 560, label: '4m aisle' },
+
+  { x: 360, y: 680, label: '4m aisle' },
+  { x: 700, y: 680, label: '4m aisle' },
+  { x: 1040, y: 680, label: '4m aisle' },
 ];
 
 export function FloorPlan() {
-  const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: VIEWBOX_W, h: VIEWBOX_H });
+  const [viewBox, setViewBox] = useState({ x: VIEWBOX_X, y: VIEWBOX_Y, w: VIEWBOX_W, h: VIEWBOX_H });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StandStatus | null>(null);
   const [industryFilter, setIndustryFilter] = useState<string | null>(null);
@@ -61,7 +69,7 @@ export function FloorPlan() {
   const [stands, setStands] = useState<Stand[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const targetViewBox = useRef({ x: 0, y: 0, w: VIEWBOX_W, h: VIEWBOX_H });
+  const targetViewBox = useRef({ x: VIEWBOX_X, y: VIEWBOX_Y, w: VIEWBOX_W, h: VIEWBOX_H });
   const animFrameRef = useRef<number | null>(null);
 
   const zoom = VIEWBOX_W / viewBox.w;
@@ -228,13 +236,13 @@ export function FloorPlan() {
 
   const handleReset = () => { 
     setSelectedBlock(null);
-    animateToViewBox({ x: 0, y: 0, w: VIEWBOX_W, h: VIEWBOX_H });
+    animateToViewBox({ x: VIEWBOX_X, y: VIEWBOX_Y, w: VIEWBOX_W, h: VIEWBOX_H });
   };
 
   const handleBlockClick = (blockRow: number, blockColumn: number, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    const blockX = 60 + blockColumn * 340;
-    const blockY = 82 + blockRow * 120;
+    const blockX = 40 + blockColumn * 340;
+    const blockY = 40 + blockRow * 120;
     
     // Generous target viewBox size for block focus
     const targetW = 480;
@@ -354,21 +362,21 @@ export function FloorPlan() {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pb-2.5 border-b border-slate-200/60">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Booth Types:</span>
               <div className="flex flex-wrap gap-x-5 gap-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                  <span className="w-3.5 h-3.5 rounded-sm border bg-white border-slate-300 shadow-sm" />
-                  <span>Standard (12m² — US$3,360)</span>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                  <span className="w-4 h-4 rounded-sm border bg-white border-slate-700 shadow-sm flex items-center justify-center text-[10px] font-black text-slate-700">S</span>
+                  <span>Standard Booth</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-orange-700">
-                  <span className="w-3.5 h-3.5 rounded-sm border bg-orange-50 border-orange-500 shadow-sm flex items-center justify-center text-[9px] font-black text-orange-700">C</span>
-                  <span>Corner Booth C (12m² — US$4,200)</span>
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
+                  <span className="w-4 h-4 rounded-sm border bg-blue-50 border-blue-500 shadow-sm flex items-center justify-center text-[10px] font-black text-blue-700">C</span>
+                  <span>Corner Booth</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-800">
-                  <span className="w-3.5 h-3.5 rounded-sm border bg-amber-100 border-amber-500 shadow-sm flex items-center justify-center text-[9px] font-black text-amber-800">P</span>
-                  <span>Premium Booth P (12m² — US$5,000)</span>
+                <div className="flex items-center gap-2 text-xs font-bold text-red-700">
+                  <span className="w-4 h-4 rounded-sm border bg-red-50 border-red-500 shadow-sm flex items-center justify-center text-[10px] font-black text-red-700">P</span>
+                  <span>Premium Booth</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-blue-700">
-                  <span className="w-3.5 h-3.5 rounded-sm border bg-blue-50 border-blue-400 shadow-sm" />
-                  <span>Outdoor (100m² — US$6,120)</span>
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-800">
+                  <span className="w-4 h-4 rounded-sm border bg-blue-100 border-blue-600 shadow-sm flex items-center justify-center text-[10px] font-black text-blue-800">O</span>
+                  <span>Outdoor Booth</span>
                 </div>
               </div>
             </div>
@@ -394,40 +402,32 @@ export function FloorPlan() {
             </div>
           </div>
 
-          {/* Floor plan canvas wrapper */}
-          <div className="relative">
-            {/* SVG canvas */}
-            <div
-              ref={containerRef}
-              className="relative bg-ink-50 border border-ink-200 rounded-sm overflow-hidden select-none w-full"
-              style={{ aspectRatio: `${VIEWBOX_W / VIEWBOX_H}` }}
-              onMouseMove={handleMouseMove}
+          {/* Single Floor Plan Canvas Container */}
+          <div
+            ref={containerRef}
+            className="relative bg-ink-50 border border-slate-200 rounded-xl overflow-hidden select-none w-full shadow-sm"
+            style={{ aspectRatio: `${VIEWBOX_W / VIEWBOX_H}` }}
+            onMouseMove={handleMouseMove}
+          >
+            {/* Inner Zoomable SVG Canvas (Uses ViewBox Animation) */}
+            <svg
+              viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
+              className="w-full h-full"
+              preserveAspectRatio="xMidYMid meet"
             >
-              {/* Inner Zoomable SVG Canvas (Uses ViewBox Animation) */}
-              <svg
-                viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-                className="w-full h-full"
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <defs>
-                  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eceef2" strokeWidth="0.5" />
-                  </pattern>
-                  <clipPath id="map-clip">
-                    <rect x="40" y="50" width={VIEWBOX_W - 80} height={740} />
-                    <rect x="140" y="830" width={1160} height={250} />
-                  </clipPath>
-                </defs>
-                <rect width={VIEWBOX_W} height={VIEWBOX_H} fill="url(#grid)" />
+              <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eceef2" strokeWidth="0.5" />
+                </pattern>
+                <clipPath id="map-clip">
+                  <rect x="-100" y="-125" width={1600} height={1280} />
+                </clipPath>
+              </defs>
+              <rect x={VIEWBOX_X} y={VIEWBOX_Y} width={VIEWBOX_W} height={VIEWBOX_H} fill="url(#grid)" />
 
                 {/* ZOOMABLE CONTENT */}
                 <g clipPath="url(#map-clip)">
                   <g>
-                    {/* Outdoor Zone background */}
-                    {!selectedBlock && (
-                      <rect x={140} y={830} width={1160} height={250} fill="#fafbfc" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2 2" rx="4" />
-                    )}
-
                     {/* Zone background overlays inside the hall (24 blocks) */}
                     {Array.from({ length: 6 }).map((_, blockRow) =>
                       Array.from({ length: 4 }).map((_, blockColumn) => {
@@ -436,8 +436,8 @@ export function FloorPlan() {
                         }
                         const zoneName = ZONE_MAP[blockRow][blockColumn];
                         const tint = ZONE_TINTS[zoneName] || { fill: '#ffffff', stroke: '#eceef2', text: '#64748b' };
-                        const blockX = 60 + blockColumn * 340;
-                        const blockY = 82 + blockRow * 120;
+                        const blockX = 40 + blockColumn * 340;
+                        const blockY = 40 + blockRow * 120;
                         const isClickable = zoom < 1.5;
                         
                         return (
@@ -465,9 +465,20 @@ export function FloorPlan() {
                       })
                     )}
 
-                    {/* Aisle labels */}
-                    {!selectedBlock && AISLE_LABELS.map((a) => (
-                      <text key={`${a.x}-${a.y}`} x={a.x} y={a.y} textAnchor="middle" fontSize={7.5 / zoom} fill="#94a3b8" fontWeight="600" className="opacity-90">{a.label} Aisle</text>
+                    {/* Aisle labels rendered horizontally left-to-right between the sides of blocks */}
+                    {!selectedBlock && AISLE_LABELS.map((a, idx) => (
+                      <g key={`aisle-lbl-${idx}-${a.x}-${a.y}`} transform={`translate(${a.x}, ${a.y})`} className="pointer-events-none select-none">
+                        <text
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize="6.5"
+                          fill="#334155"
+                          fontWeight="900"
+                          className="tracking-wider uppercase font-sans"
+                        >
+                          {a.label}
+                        </text>
+                      </g>
                     ))}
 
                     {/* Stands */}
@@ -477,8 +488,8 @@ export function FloorPlan() {
                       stands.map((stand) => {
                         // Filter by selected block coordinate bounds
                         if (selectedBlock) {
-                          const blockX = 60 + selectedBlock.col * 340;
-                          const blockY = 82 + selectedBlock.row * 120;
+                          const blockX = 40 + selectedBlock.col * 340;
+                          const blockY = 40 + selectedBlock.row * 120;
                           const isInsideBlock = stand.x >= blockX && stand.x < blockX + 300 && stand.y >= blockY && stand.y < blockY + 80;
                           if (!isInsideBlock) return null;
                         }
@@ -488,22 +499,14 @@ export function FloorPlan() {
                         
                         // Use booth type colors for available stands, and status colors for non-available (reserved/confirmed/etc.)
                         const baseFill = stand.status === 'available' ? boothTypeConfig.fill : statusColors.fill;
-                        const baseStroke = stand.status === 'available' ? boothTypeConfig.stroke : statusColors.stroke;
-                        const baseText = (stand.boothType === 'corner' || stand.boothType === 'premium') ? boothTypeConfig.text : (stand.status === 'available' ? boothTypeConfig.text : statusColors.text);
+                        const baseStroke = '#0f172a'; // Uniform thin black/slate border
+                        const baseText = boothTypeConfig.text;
 
                         const dimmed = isDimmed(stand);
                         const isDrawerSelected = selectedStand?.id === stand.id;
                         const isMultiSelected = selectedStands.has(stand.id);
                         const isHovered = hovered?.id === stand.id;
                         const isInteractive = zoom >= 1.25;
-
-                        // Display text logic: C/P labels at overview zoom, full ID when zoomed in or outdoor
-                        let labelText = '';
-                        if (selectedBlock || zoom >= 1.2 || stand.status === 'outdoor' || isDrawerSelected || isHovered) {
-                          labelText = stand.label;
-                        } else {
-                          labelText = boothTypeConfig.label; // 'C' for corner, 'P' for premium, '' for standard
-                        }
 
                         return (
                           <g
@@ -514,7 +517,7 @@ export function FloorPlan() {
                             onMouseLeave={isInteractive ? () => setHovered(null) : undefined}
                             onClick={isInteractive ? (e) => handleStandClick(stand, e) : undefined}
                           >
-                            {/* Stand base rect */}
+                            {/* Stand base rect with uniform thin black border */}
                             <rect
                               x={stand.x}
                               y={stand.y}
@@ -522,7 +525,7 @@ export function FloorPlan() {
                               height={stand.h}
                               fill={isDrawerSelected ? '#e9b43e' : isMultiSelected ? '#fef3c7' : baseFill}
                               stroke={isDrawerSelected ? '#bc7d23' : isMultiSelected ? '#f59e0b' : baseStroke}
-                              strokeWidth={isDrawerSelected || isMultiSelected ? 1.8 / zoom : (stand.boothType === 'corner' || stand.boothType === 'premium' ? 1 / zoom : 0.6 / zoom)}
+                              strokeWidth={isDrawerSelected || isMultiSelected ? 1.8 / zoom : 0.6 / zoom}
                               rx={0}
                               className="transition-all"
                               style={isHovered && !isDrawerSelected ? { filter: 'brightness(0.92)' } : undefined}
@@ -546,59 +549,45 @@ export function FloorPlan() {
                             {/* Stand label text */}
                             {!isMultiSelected && (
                               <>
-                                {(selectedBlock || zoom >= 1.2 || stand.status === 'outdoor' || isDrawerSelected || isHovered) ? (
-                                  (stand.boothType === 'corner' || stand.boothType === 'premium') ? (
-                                    <g className="pointer-events-none select-none">
+                                {(selectedBlock || zoom >= 1.25 || isDrawerSelected || isHovered) ? (
+                                  <g className="pointer-events-none select-none">
+                                    {boothTypeConfig.label && (
                                       <text
                                         x={stand.x + stand.w / 2}
-                                        y={stand.y + 14}
+                                        y={stand.y + (stand.status === 'outdoor' ? 40 : 14)}
                                         textAnchor="middle"
-                                        fontSize={selectedBlock ? 8.5 : 7}
+                                        fontSize={stand.status === 'outdoor' ? 12.5 : (selectedBlock ? 9.5 : 8)}
                                         fontWeight="900"
                                         fill={boothTypeConfig.text}
                                         className="pointer-events-none tracking-tight font-mono select-none"
                                       >
                                         {boothTypeConfig.label}
                                       </text>
-                                      <text
-                                        x={stand.x + stand.w / 2}
-                                        y={stand.y + (selectedBlock ? 28 : 26)}
-                                        textAnchor="middle"
-                                        fontSize={selectedBlock ? 7.5 : 5.5}
-                                        fontWeight="800"
-                                        fill={isDrawerSelected ? '#1a1d23' : (stand.status === 'available' ? '#1e293b' : baseText)}
-                                        className="pointer-events-none tracking-tight font-mono select-none"
-                                      >
-                                        {stand.label}
-                                      </text>
-                                    </g>
-                                  ) : (
+                                    )}
                                     <text
                                       x={stand.x + stand.w / 2}
-                                      y={stand.y + stand.h / 2 + 2}
+                                      y={stand.y + (boothTypeConfig.label ? (selectedBlock ? 28 : 26) : stand.h / 2 + 3)}
                                       textAnchor="middle"
-                                      fontSize={stand.status === 'outdoor' ? 9 : selectedBlock ? 7.5 : 5.5}
-                                      fontWeight="800"
+                                      fontSize={stand.status === 'outdoor' ? 12.5 : (selectedBlock ? 9 : 7)}
+                                      fontWeight="900"
                                       fill={isDrawerSelected ? '#1a1d23' : baseText}
                                       className="pointer-events-none tracking-tight font-mono select-none"
                                     >
                                       {stand.label}
                                     </text>
-                                  )
+                                  </g>
                                 ) : (
-                                  boothTypeConfig.label !== '' && (
-                                    <text
-                                      x={stand.x + stand.w / 2}
-                                      y={stand.y + stand.h / 2 + 3}
-                                      textAnchor="middle"
-                                      fontSize={8.5}
-                                      fontWeight="900"
-                                      fill={baseText}
-                                      className="pointer-events-none tracking-tight font-mono select-none"
-                                    >
-                                      {boothTypeConfig.label}
-                                    </text>
-                                  )
+                                  <text
+                                    x={stand.x + stand.w / 2}
+                                    y={stand.y + stand.h / 2 + 4}
+                                    textAnchor="middle"
+                                    fontSize={stand.status === 'outdoor' ? 15 : 12}
+                                    fontWeight="900"
+                                    fill={baseText}
+                                    className="pointer-events-none tracking-tight font-mono select-none"
+                                  >
+                                    {stand.status === 'outdoor' ? stand.label : boothTypeConfig.label}
+                                  </text>
                                 )}
                               </>
                             )}
@@ -607,43 +596,45 @@ export function FloorPlan() {
                       })
                     )}
 
-                    {/* Block watermarks rendered ON TOP of stands but click-through, visible only at low zoom (overview) */}
-                    {zoom < 1.5 && !selectedBlock && (
+                    {/* Block codes (A1, B2) & Industry Zone Titles centered in the aisle above each block */}
+                    {!selectedBlock && (
                       Array.from({ length: 6 }).map((_, blockRow) =>
                         Array.from({ length: 4 }).map((_, blockColumn) => {
                           const zoneName = ZONE_MAP[blockRow][blockColumn];
-                          const tint = ZONE_TINTS[zoneName] || { fill: '#ffffff', stroke: '#eceef2', text: '#64748b' };
-                          const blockX = 60 + blockColumn * 340;
-                          const blockY = 82 + blockRow * 120;
+                          const blockX = 40 + blockColumn * 340;
+                          const blockY = 40 + blockRow * 120;
+                          const zoneTitleY = 20 + blockRow * 120;
                           const blockLetter = ['A', 'B', 'C', 'D'][blockColumn];
                           const blockNum = blockRow + 1;
                           return (
-                            <g key={`block-watermark-${blockRow}-${blockColumn}`} className="pointer-events-none select-none">
+                            <g key={`block-header-${blockRow}-${blockColumn}`} className="pointer-events-none select-none">
+                              {/* Industry Zone title centered in the aisle space above each block */}
                               <text
                                 x={blockX + 150}
-                                y={blockY + 48}
+                                y={zoneTitleY}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fontSize={40 / zoom}
+                                fontSize={9.5 / zoom}
                                 fontWeight="900"
-                                fill={tint.text}
-                                opacity={0.12}
+                                fill="#0f172a"
+                                className="uppercase tracking-wider pointer-events-none select-none font-sans"
+                              >
+                                {zoneName}
+                              </text>
+
+                              {/* Prominent, bold Block code watermark (A1, B2, etc.) */}
+                              <text
+                                x={blockX + 150}
+                                y={blockY + 44}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize={36 / zoom}
+                                fontWeight="900"
+                                fill="#0f172a"
+                                opacity={0.6}
                                 className="font-display uppercase pointer-events-none select-none"
                               >
                                 {blockLetter}{blockNum}
-                              </text>
-                              <text
-                                x={blockX + 150}
-                                y={blockY + 22}
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                                fontSize={7 / zoom}
-                                fontWeight="800"
-                                fill={tint.text}
-                                opacity={0.35}
-                                className="uppercase tracking-wider pointer-events-none select-none font-semibold"
-                              >
-                                {zoneName}
                               </text>
                             </g>
                           );
@@ -654,8 +645,8 @@ export function FloorPlan() {
                     {/* Facility cutouts */}
                     {FACILITY_ZONES.map((facility) => {
                       if (selectedBlock) {
-                        const blockX = 60 + selectedBlock.col * 340;
-                        const blockY = 82 + selectedBlock.row * 120;
+                        const blockX = 40 + selectedBlock.col * 340;
+                        const blockY = 40 + selectedBlock.row * 120;
                         const minX = blockX;
                         const maxX = blockX + 300;
                         const minY = blockY;
@@ -665,60 +656,96 @@ export function FloorPlan() {
                         }
                       }
 
-                      const isRestroom = facility.label.includes('restroom');
+                      const isRestroom = facility.label.toLowerCase().includes('restroom');
                       const isATM = facility.label.includes('ATM');
-                      const isPolice = facility.label.includes('police');
-                      const isManagement = facility.label.includes('management');
+                      const isPolice = facility.label.toLowerCase().includes('police');
+                      const isManagement = facility.label.toLowerCase().includes('management');
+
+                      const cx = facility.x + facility.w / 2;
+                      const cy = facility.y + 13;
+                      const lines = facility.label.split(/\n|\\n/);
+
                       return (
-                        <g key={`${facility.x}-${facility.y}`}>
+                        <g key={`facility-${facility.x}-${facility.y}`} className="pointer-events-none select-none">
+                          {/* Base booth rect perfectly aligned with stand grid */}
                           <rect
                             x={facility.x}
                             y={facility.y}
                             width={facility.w}
                             height={facility.h}
-                            fill="#f1f5f9"
-                            stroke="#cbd5e1"
-                            strokeWidth={1.2 / zoom}
-                            rx="2"
+                            fill="#f8fafc"
+                            stroke="#0f172a"
+                            strokeWidth={0.6 / zoom}
+                            rx={0}
                           />
+
+                          {/* Restroom Icon */}
                           {isRestroom && (
-                            <g transform={`translate(${facility.x + facility.w / 2}, ${facility.y + (facility.h > 40 ? 25 : 14)}) scale(${1 / zoom})`} className="opacity-70">
-                              <circle r="3" fill="none" stroke="#475569" strokeWidth="0.8" cy="-2" />
-                              <path d="M-3,2 L3,2 M-1.5,2 L-1.5,6 M1.5,2 L1.5,6" stroke="#475569" strokeWidth="0.8" />
+                            <g transform={`translate(${cx}, ${cy})`}>
+                              {/* Male Icon */}
+                              <circle cx="-5" cy="-4" r="1.8" fill="#1e293b" />
+                              <path d="M-7,-1 H-3 V4 H-4 V7 H-5 V4 H-6 V7 H-7 Z" fill="#1e293b" />
+                              {/* Divider */}
+                              <line x1="0" y1="-5" x2="0" y2="7" stroke="#cbd5e1" strokeWidth="0.8" />
+                              {/* Female Icon */}
+                              <circle cx="5" cy="-4" r="1.8" fill="#1e293b" />
+                              <path d="M3,-1 H7 L8 4 H6 V7 H4 V4 H2 Z" fill="#1e293b" />
                             </g>
                           )}
-                          {isATM && (
-                            <g transform={`translate(${facility.x + facility.w / 2}, ${facility.y + 14}) scale(${1 / zoom})`} className="opacity-70">
-                              <circle r="4.5" fill="none" stroke="#475569" strokeWidth="0.8" />
-                              <text textAnchor="middle" dominantBaseline="middle" fontSize="6.5" fontWeight="bold" fill="#475569" y="1">$</text>
-                            </g>
-                          )}
-                          {isPolice && (
-                            <g transform={`translate(${facility.x + facility.w / 2}, ${facility.y + 25}) scale(${1 / zoom})`} className="opacity-70">
-                              <path d="M-3.5,-3.5 L3.5,-3.5 L3.5,-1 C3.5,1.5 0,4 0,4 C0,4 -3.5,1.5 -3.5,-1 Z" fill="none" stroke="#475569" strokeWidth="0.8" />
-                            </g>
-                          )}
+
+                          {/* Office Management Icon */}
                           {isManagement && (
-                            <g transform={`translate(${facility.x + facility.w / 2}, ${facility.y + 25}) scale(${1 / zoom})`} className="opacity-70">
-                              <rect x="-3.5" y="-3.5" width="7" height="7" fill="none" stroke="#475569" strokeWidth="0.8" />
-                              <line x1="0" y1="-3.5" x2="0" y2="3.5" stroke="#475569" strokeWidth="0.8" />
-                              <line x1="-3.5" y1="0" x2="3.5" y2="0" stroke="#475569" strokeWidth="0.8" />
+                            <g transform={`translate(${cx}, ${cy})`}>
+                              <rect x="-7" y="-3" width="14" height="10" rx="1.5" stroke="#1e293b" strokeWidth="1.2" fill="#e2e8f0" />
+                              <path d="M-3,-3 V-5 C-3,-5.5 -2.2,-6 -1.4,-6 H1.4 C2.2,-6 3,-5.5 3,-5 V-3" stroke="#1e293b" strokeWidth="1.2" fill="none" />
+                              <line x1="-7" y1="1" x2="7" y2="1" stroke="#1e293b" strokeWidth="1" />
+                              <rect x="-1.5" y="0" width="3" height="2" fill="#1e293b" />
                             </g>
                           )}
-                          {facility.label.split(/\n|\\n/).map((line, index) => (
-                            <text
-                              key={line}
-                              x={facility.x + facility.w / 2}
-                              y={facility.y + (facility.h > 40 ? 45 : 28) + index * (6 / zoom)}
-                              textAnchor="middle"
-                              fontSize={4.5 / zoom}
-                              fill="#475569"
-                              fontWeight="800"
-                              className="uppercase tracking-wide font-sans"
-                            >
-                              {line}
-                            </text>
-                          ))}
+
+                          {/* ATM Icon */}
+                          {isATM && (
+                            <g transform={`translate(${cx}, ${cy})`}>
+                              <rect x="-8" y="-6" width="16" height="12" rx="1.5" fill="#1e293b" />
+                              <rect x="-6" y="-4" width="12" height="4" fill="#94a3b8" />
+                              <text textAnchor="middle" dominantBaseline="middle" fontSize="6" fontWeight="900" fill="#ffffff" y="3.5" fontFamily="sans-serif">$</text>
+                            </g>
+                          )}
+
+                          {/* Office Police Icon */}
+                          {isPolice && (
+                            <g transform={`translate(${cx}, ${cy})`}>
+                              <path d="M 0,-7 L 6,-4 V 0 C 6,4 0,7 0,7 C 0,7 -6,4 -6,0 V -4 Z" fill="#2563eb" stroke="#1e293b" strokeWidth="1" />
+                              <path d="M 0,-4 L 1.5,-1 H 4.5 L 2,1 L 3,4 L 0,2.2 L -3,4 L -2,1 L -4.5,-1 H -1.5 Z" fill="#ffffff" />
+                            </g>
+                          )}
+
+                          {/* Prominent, non-overlapping label text */}
+                          {lines.map((line, index) => {
+                            const isMultiLine = lines.length > 1;
+                            const textY = isMultiLine
+                              ? (index === 0 ? facility.y + 25 : facility.y + 33.5)
+                              : facility.y + 29;
+                            const fontSize = isMultiLine
+                              ? (facility.w <= 30 ? 5.2 : 6)
+                              : 6.8;
+
+                            return (
+                              <text
+                                key={`${line}-${index}`}
+                                x={cx}
+                                y={textY}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize={fontSize}
+                                fill="#0f172a"
+                                fontWeight="900"
+                                className="uppercase tracking-tight font-sans"
+                              >
+                                {line}
+                              </text>
+                            );
+                          })}
                         </g>
                       );
                     })}
@@ -728,90 +755,153 @@ export function FloorPlan() {
 
               {/* Fixed Outer Rulers SVG Overlay (Never scales or shifts) */}
               <svg
-                viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+                viewBox={`${VIEWBOX_X} ${VIEWBOX_Y} ${VIEWBOX_W} ${VIEWBOX_H}`}
                 className="absolute inset-0 w-full h-full pointer-events-none z-20"
                 preserveAspectRatio="xMidYMid meet"
               >
-                {/* Hall outline — 140m × 76m */}
-                {!selectedBlock && <rect x="40" y="50" width={VIEWBOX_W - 80} height={740} fill="none" stroke="#aeb6c4" strokeWidth="2" rx="4" />}
+                {/* Hall outline with 4 Entrance cutouts — 40px (4m) uniform clearance on all 4 sides & corners */}
+                {!selectedBlock && (
+                  <g fill="none">
+                    {/* Outer Wall Boundary Lines (Solid Slate) */}
+                    <g stroke="#aeb6c4" strokeWidth="3">
+                      {/* Top wall: y=0, gap between x=630 and x=770 */}
+                      <line x1="0" y1="0" x2="630" y2="0" />
+                      <line x1="770" y1="0" x2="1400" y2="0" />
+                      
+                      {/* Bottom wall: y=760, gap between x=630 and x=770 */}
+                      <line x1="0" y1="760" x2="630" y2="760" />
+                      <line x1="770" y1="760" x2="1400" y2="760" />
 
-                {/* Top dimensions */}
+                      {/* Left wall: x=0, gap between y=310 and y=450 */}
+                      <line x1="0" y1="0" x2="0" y2="310" />
+                      <line x1="0" y1="450" x2="0" y2="760" />
+
+                      {/* Right wall: x=1400, gap between y=310 and y=450 */}
+                      <line x1="1400" y1="0" x2="1400" y2="310" />
+                      <line x1="1400" y1="450" x2="1400" y2="760" />
+                    </g>
+
+                    {/* Internal 4m Clearance Boundary (Dashed Guide) */}
+                    <g stroke="#cbd5e1" strokeWidth="0.8" strokeDasharray="3 3">
+                      <line x1="40" y1="40" x2="1360" y2="40" />
+                      <line x1="40" y1="720" x2="1360" y2="720" />
+                      <line x1="40" y1="40" x2="40" y2="720" />
+                      <line x1="1360" y1="40" x2="1360" y2="720" />
+                    </g>
+                  </g>
+                )}
+
+                {/* Top dimensions — Generous vertical spacing above top hall wall */}
                 {!selectedBlock && (
                   <>
-                    <line x1="40" y1="28" x2={VIEWBOX_W - 40} y2="28" stroke="#828d9f" strokeWidth={0.5} />
-                    <path d="M 0 0 L 6 -3 L 6 3 Z" fill="#828d9f" transform="translate(40, 28)" />
-                    <path d="M 0 0 L -6 -3 L -6 3 Z" fill="#828d9f" transform={`translate(${VIEWBOX_W - 40}, 28)`} />
-                    <text x={VIEWBOX_W / 2} y="23" textAnchor="middle" fontSize="9" fill="#828d9f" fontWeight="600">140,000 mm (140m) — Overall Hall Width</text>
+                    <line x1="0" y1="-70" x2="1400" y2="-70" stroke="#000000ff" strokeWidth="1" />
+                    <path d="M 0 0 L 6 -3 L 6 3 Z" fill="#000000ff" transform="translate(0, -70)" />
+                    <path d="M 0 0 L -6 -3 L -6 3 Z" fill="#000000ff" transform="translate(1400, -70)" />
+                    <text x={700} y="-76" textAnchor="middle" fontSize="15" fill="#0f0f0fff" fontWeight="900">Overall Hall Width (140m)</text>
                     
-                    <line x1="60" y1="38" x2={VIEWBOX_W - 60} y2="38" stroke="#aeb6c4" strokeWidth={0.5} />
-                    <path d="M 0 0 L 5 -2 L 5 2 Z" fill="#aeb6c4" transform="translate(60, 38)" />
-                    <path d="M 0 0 L -5 -2 L -5 2 Z" fill="#aeb6c4" transform={`translate(${VIEWBOX_W - 60}, 38)`} />
-                    <text x={VIEWBOX_W / 2} y="36" textAnchor="middle" fontSize="7" fill="#aeb6c4" fontWeight="500">132,000 mm (132m) — Internal Boundary Width</text>
+                    <line x1="40" y1="-40" x2="1360" y2="-40" stroke="#000000ff" strokeWidth="1" />
+                    <path d="M 0 0 L 5 -2 L 5 2 Z" fill="#000000ff" transform="translate(40, -40)" />
+                    <path d="M 0 0 L -5 -2 L -5 2 Z" fill="#000000ff" transform="translate(1360, -40)" />
+                    <text x={700} y="-45" textAnchor="middle" fontSize="13" fill="#000000ff" fontWeight="600">Internal Boundary Width (130m)</text>
                   </>
                 )}
 
                 {/* Side dimensions */}
                 {!selectedBlock && (
                   <>
-                    <line x1="28" y1="50" x2="28" y2={790} stroke="#828d9f" strokeWidth={0.5} />
-                    <path d="M 0 0 L -3 6 L 3 6 Z" fill="#828d9f" transform="translate(28, 50)" />
-                    <path d="M 0 0 L -3 -6 L 3 -6 Z" fill="#828d9f" transform="translate(28, 790)" />
-                    <text x="22" y={420} textAnchor="middle" fontSize="8" fill="#828d9f" fontWeight="600" transform="rotate(-90 22 420)">76,000 mm (76m) — Overall Hall Depth</text>
+                    <line x1="-40" y1="0" x2="-40" y2="760" stroke="#000000ff" strokeWidth="1" />
+                    <path d="M 0 0 L -3 6 L 3 6 Z" fill="#000000ff" transform="translate(-40, 0)" />
+                    <path d="M 0 0 L -3 -6 L 3 -6 Z" fill="#000000ff" transform="translate(-40, 760)" />
+                    <text x="-48" y="380" textAnchor="middle" fontSize="15" fill="#000000ff" fontWeight="900" transform="rotate(-90 -48 380)">Overall Hall Length (76m)</text>
                     
-                    <line x1={VIEWBOX_W - 28} y1="82" x2={VIEWBOX_W - 28} y2={762} stroke="#aeb6c4" strokeWidth={0.5} />
-                    <path d="M 0 0 L -3 6 L 3 6 Z" fill="#aeb6c4" transform={`translate(${VIEWBOX_W - 28}, 82)`} />
-                    <path d="M 0 0 L -3 -6 L 3 -6 Z" fill="#aeb6c4" transform={`translate(${VIEWBOX_W - 28}, 762)`} />
-                    <text x={VIEWBOX_W - 22} y={420} textAnchor="middle" fontSize="7" fill="#aeb6c4" fontWeight="500" transform={`rotate(90 ${VIEWBOX_W - 22} 420)`}>68,000 mm (68m) — Internal Boundary Depth</text>
+                    <line x1="1440" y1="40" x2="1440" y2="720" stroke="#000000ff" strokeWidth="1" />
+                    <path d="M 0 0 L -3 6 L 3 6 Z" fill="#000000ff" transform="translate(1440, 40)" />
+                    <path d="M 0 0 L -3 -6 L 3 -6 Z" fill="#000000ff" transform="translate(1440, 720)" />
+                    <text x="1448" y="380" textAnchor="middle" fontSize="15" fill="#000000ff" fontWeight="600" transform="rotate(90 1448 380)">Internal Boundary Length (68m)</text>
                   </>
                 )}
 
-                {/* Block dimension annotations */}
-                {!selectedBlock && [60, 400, 740, 1080].map((x) => (
+                {/* Block dimension annotations — Generous spacing below bottom hall wall */}
+                {!selectedBlock && [40, 380, 720, 1060].map((x) => (
                   <g key={`bw-annot-${x}`}>
-                    <line x1={x} y1="786" x2={x + 300} y2="786" stroke="#94a3b8" strokeWidth={0.5} strokeDasharray="2 2" />
-                    <text x={x + 150} y={794} textAnchor="middle" fontSize="7" fill="#64748b" fontWeight="600">30,000 mm (30m) Block Width</text>
+                    <line x1={x} y1="795" x2={x + 300} y2="795" stroke="#000000ff" strokeWidth={1} />
+                    <text x={x + 150} y={807} textAnchor="middle" fontSize="10" fill="#000000ff" fontWeight="600">30,000 mm (30m) Block Width</text>
                   </g>
                 ))}
 
-                {/* Perimeter clearance */}
+                {/* 4m Corner Clearance Labels */}
                 {!selectedBlock && (
-                  <>
-                    <text x="48" y="776" fontSize="7" fill="#94a3b8" fontWeight="600">4,000 mm (4m) perimeter clearance</text>
-                    <text x={VIEWBOX_W - 48} y="776" textAnchor="end" fontSize="7" fill="#94a3b8" fontWeight="600">4,000 mm (4m) perimeter clearance</text>
-                  </>
+                  <g id="perimeter-clearance-labels">
+                    {/* Corner 4m dimension tick guides */}
+                    <g stroke="#94a3b8" strokeWidth="0.8" opacity="0.8">
+                      {/* Top-Left corner guide */}
+                      <line x1="0" y1="40" x2="40" y2="40" strokeDasharray="2 2" />
+                      <line x1="40" y1="0" x2="40" y2="40" strokeDasharray="2 2" />
+
+                      {/* Top-Right corner guide */}
+                      <line x1="1360" y1="40" x2="1400" y2="40" strokeDasharray="2 2" />
+                      <line x1="1360" y1="0" x2="1360" y2="40" strokeDasharray="2 2" />
+
+                      {/* Bottom-Left corner guide */}
+                      <line x1="0" y1="720" x2="40" y2="720" strokeDasharray="2 2" />
+                      <line x1="40" y1="720" x2="40" y2="760" strokeDasharray="2 2" />
+
+                      {/* Bottom-Right corner guide */}
+                      <line x1="1360" y1="720" x2="1400" y2="720" strokeDasharray="2 2" />
+                      <line x1="1360" y1="720" x2="1360" y2="760" strokeDasharray="2 2" />
+                    </g>
+
+                    {/* Bold, clean 4m labels centered in each corner matching aisle label styling */}
+                    <text x="20" y="24" textAnchor="middle" fontSize="10.5" fill="#334155" fontWeight="800" className="font-sans uppercase">4m</text>
+                    <text x="1380" y="24" textAnchor="middle" fontSize="10.5" fill="#334155" fontWeight="800" className="font-sans uppercase">4m</text>
+                    <text x="20" y="744" textAnchor="middle" fontSize="10.5" fill="#334155" fontWeight="800" className="font-sans uppercase">4m</text>
+                    <text x="1380" y="744" textAnchor="middle" fontSize="10.5" fill="#334155" fontWeight="800" className="font-sans uppercase">4m</text>
+                  </g>
                 )}
 
-                {/* Entrance */}
+                {/* 4 Center Entrances (North, South, West, East) */}
                 {!selectedBlock && (
-                  <>
-                    <rect x={VIEWBOX_W / 2 - 70} y="42" width="140" height="8" fill="#e9b43e" opacity="0.3" />
-                    <text x={VIEWBOX_W / 2} y="46" textAnchor="middle" fontSize="8" fill="#975c20" fontWeight="700">MAIN ENTRANCE</text>
-                  </>
+                  <g id="entrances">
+                    {/* Top Main Entrance (North) */}
+                    <g transform="translate(700, 0)">
+                      <rect x="-65" y="-11" width="130" height="22" fill="#ffffff" stroke="#ef4444" strokeWidth="1.5" rx="5" />
+                      <text x="0" y="4" textAnchor="middle" fontSize="9" fill="#dc2626" fontWeight="900" className="tracking-wider font-sans">MAIN ENTRANCE</text>
+                      <polygon points="0,17 -7,11 7,11" fill="#ef4444" />
+                    </g>
+
+                    {/* Bottom Entrance (South) */}
+                    <g transform="translate(700, 760)">
+                      <rect x="-65" y="-11" width="130" height="22" fill="#ffffff" stroke="#ef4444" strokeWidth="1.5" rx="5" />
+                      <text x="0" y="4" textAnchor="middle" fontSize="9" fill="#dc2626" fontWeight="900" className="tracking-wider font-sans">SOUTH ENTRANCE</text>
+                      <polygon points="0,-17 -7,-11 7,-11" fill="#ef4444" />
+                    </g>
+
+                    {/* Left Entrance (West) */}
+                    <g transform="translate(0, 380)">
+                      <rect x="-65" y="-11" width="130" height="22" fill="#ffffff" stroke="#ef4444" strokeWidth="1.5" rx="5" transform="rotate(-90)" />
+                      <text x="0" y="4" textAnchor="middle" fontSize="9" fill="#dc2626" fontWeight="900" transform="rotate(-90)" className="tracking-wider font-sans">WEST ENTRANCE</text>
+                      <polygon points="17,0 11,-7 11,7" fill="#ef4444" />
+                    </g>
+
+                    {/* Right Entrance (East) */}
+                    <g transform="translate(1400, 380)">
+                      <rect x="-65" y="-11" width="130" height="22" fill="#ffffff" stroke="#ef4444" strokeWidth="1.5" rx="5" transform="rotate(90)" />
+                      <text x="0" y="4" textAnchor="middle" fontSize="9" fill="#dc2626" fontWeight="900" transform="rotate(90)" className="tracking-wider font-sans">EAST ENTRANCE</text>
+                      <polygon points="-17,0 -11,-7 -11,7" fill="#ef4444" />
+                    </g>
+                  </g>
                 )}
 
-                {/* Outdoor Zone header */}
+                {/* Outdoor Zone header — Clean spacing below 30m block width annotations */}
                 {!selectedBlock && (
                   <>
-                    <line x1="40" y1="815" x2={VIEWBOX_W - 40} y2="815" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="4 4" />
-                    <rect x={VIEWBOX_W / 2 - 120} y="805" width="240" height="20" fill="#f8fafc" rx="10" stroke="#cbd5e1" strokeWidth="1" />
-                    <text x={VIEWBOX_W / 2} y="818" textAnchor="middle" fontSize="8" fill="#475569" fontWeight="700" className="tracking-widest uppercase">
-                      Outdoor Heavy Equipment Zone
+                    <line x1="0" y1="840" x2="1400" y2="840" stroke="#94a3b8" strokeWidth="2" strokeDasharray="6 6" />
+                    <rect x={700 - 180} y="826" width="360" height="28" fill="#f1f5f9" rx="14" stroke="#64748b" strokeWidth="1.5" />
+                    <text x={700} y="844" textAnchor="middle" fontSize="12" fill="#0f172a" fontWeight="900" className="tracking-widest uppercase font-sans">
+                      OUTDOOR HEAVY EQUIPMENT ZONE
                     </text>
                   </>
                 )}
-
-                {/* Scale Bar */}
-                <g transform="translate(60, 1075)">
-                  <rect x="-10" y="-15" width="215" height="32" fill="#ffffff" rx="2" stroke="#e2e8f0" strokeWidth="0.5" />
-                  <line x1="0" y1="0" x2="194.3" y2="0" stroke="#475569" strokeWidth="1.5" />
-                  <line x1="0" y1="-3.5" x2="0" y2="3.5" stroke="#475569" strokeWidth="1.5" />
-                  <line x1="97.1" y1="-2.5" x2="97.1" y2="2.5" stroke="#475569" strokeWidth="1" />
-                  <line x1="194.3" y1="-3.5" x2="194.3" y2="3.5" stroke="#475569" strokeWidth="1.5" />
-                  <text x="0" y="10" fontSize="7.5" fill="#475569" fontWeight="700" textAnchor="middle">0m</text>
-                  <text x="97.1" y="10" fontSize="7.5" fill="#475569" fontWeight="700" textAnchor="middle">10m</text>
-                  <text x="194.3" y="10" fontSize="7.5" fill="#475569" fontWeight="700" textAnchor="middle">20m</text>
-                  <text x="97.1" y="-6" fontSize="6.5" fill="#64748b" fontWeight="800" textAnchor="middle" className="uppercase tracking-wider">GRAPHIC SCALE</text>
-                </g>
               </svg>
 
               {/* Top Header Bar Overlay for Block View */}
@@ -973,21 +1063,9 @@ export function FloorPlan() {
                       area: `${totalArea} m²`
                     }
                   });
-                  window.dispatchEvent(initiateEvent);
                 }}
               />
-
-              {/* 100% Reset / View Button (Serves as Back to Overview) */}
-              <button 
-                onClick={handleReset}
-                className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-lg text-xs font-bold text-slate-700 border border-slate-200 hover:bg-slate-900 hover:text-white transition-all shadow-md cursor-pointer pointer-events-auto flex items-center gap-2 z-30"
-                title="Reset to 100% Full Overview"
-              >
-                <RotateCcw size={13} className="text-gold-500" />
-                <span>{selectedBlock ? '← Back to Overview (100%)' : `${Math.round(zoom * 100)}%`}</span>
-              </button>
             </div>
-          </div>
 
           {/* Industry Zone Colors Grid Legend below the floor plan canvas */}
           <div className="mt-8 border-t border-slate-200 pt-6">

@@ -40,10 +40,10 @@ export const STATUS_COLORS: Record<StandStatus, { fill: string; stroke: string; 
 };
 
 export const BOOTH_TYPE_COLORS: Record<BoothType, { fill: string; stroke: string; text: string; label: string; bg: string }> = {
-  standard: { fill: '#ffffff', stroke: '#cbd5e1', text: '#64748b', label: '', bg: 'bg-slate-50' },
-  corner: { fill: '#ffffff', stroke: '#475569', text: '#2563eb', label: 'C', bg: 'bg-blue-50' },
-  premium: { fill: '#ffffff', stroke: '#475569', text: '#dc2626', label: 'P', bg: 'bg-red-50' },
-  outdoor: { fill: '#eff6ff', stroke: '#3b82f6', text: '#1e40af', label: 'OUT', bg: 'bg-blue-50' },
+  standard: { fill: '#ffffff', stroke: '#0f172a', text: '#334155', label: 'S', bg: 'bg-slate-50' },
+  corner: { fill: '#ffffff', stroke: '#0f172a', text: '#2563eb', label: 'C', bg: 'bg-blue-50' },
+  premium: { fill: '#ffffff', stroke: '#0f172a', text: '#dc2626', label: 'P', bg: 'bg-red-50' },
+  outdoor: { fill: '#eff6ff', stroke: '#0f172a', text: '#1e40af', label: 'O', bg: 'bg-blue-50' },
 };
 
 // 15 Zones Mapping onto 24 Blocks (6 rows x 4 columns)
@@ -130,8 +130,8 @@ function makeStands(): Stand[] {
   const blockWidth = 300;
   const blockHeight = 80;
   const aisle = 40;
-  const left = 60;
-  const top = 82;
+  const left = 40;
+  const top = 40;
   const standWidth = 30;
   const standHeight = 40; // 4m depth = 40px
 
@@ -147,8 +147,10 @@ function makeStands(): Stand[] {
           // Facilities check
           const isRestroom1 = blockRow === 0 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
           const isRestroom2 = blockRow === 0 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
-          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 0 && (standColumn === 0 || standColumn === 1);
-          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 0 && (standColumn === 8 || standColumn === 9);
+          // Restroom 3 shifted to A-411, A-412 (standRow 1, standCols 0, 1)
+          const isRestroom3 = blockRow === 5 && blockColumn === 0 && standRow === 1 && (standColumn === 0 || standColumn === 1);
+          // Restroom 4 shifted to D-479, D-480 (standRow 1, standCols 8, 9)
+          const isRestroom4 = blockRow === 5 && blockColumn === 3 && standRow === 1 && (standColumn === 8 || standColumn === 9);
           const isManagement = blockRow === 0 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
           const isPolice = blockRow === 5 && blockColumn === 1 && standRow === 1 && standColumn === 9;
           const isATM = blockRow === 2 && blockColumn === 1 && standRow === 0 && (standColumn === 8 || standColumn === 9);
@@ -170,8 +172,15 @@ function makeStands(): Stand[] {
           const isPrem = isPremiumStand(blockRow, blockColumn, standRow, standColumn);
           let isCorn = (standColumn === 0 || standColumn === 9);
 
-          // Remove right corner C booths for Block B3 (blockRow 2, blockColumn 1)
-          if (blockRow === 2 && blockColumn === 1 && standColumn === 9) {
+          // Custom corner rules for specific blocks:
+          if (blockRow === 5 && blockColumn === 0) {
+            // Block A6: A-401 (col 0) and A-402 (col 1) are Corner (C), remaining are Standard (S)
+            isCorn = (standRow === 0 && (standColumn === 0 || standColumn === 1));
+          } else if (blockRow === 5 && blockColumn === 3) {
+            // Block D6: D-461 (col 0) and D-470 (col 9) are Corner (C), remaining are Standard (S)
+            isCorn = (standRow === 0 && (standColumn === 0 || standColumn === 9));
+          } else if (blockRow === 2 && blockColumn === 1 && standColumn === 9) {
+            // Block B3: right corner is not Corner (C)
             isCorn = false;
           }
 
@@ -218,8 +227,8 @@ function makeStands(): Stand[] {
 
 function makeOutdoorStands(): Stand[] {
   const stands: Stand[] = [];
-  const startX = 150;
-  const startY = 860; // Placed below the main hall
+  const startX = 132.5;
+  const startY = 890; // Centered below the main hall with generous spacing
   const standSize = 100; // 10m x 10m = 100px x 100px
   const spacing = 15;
   const zone = 'Outdoor Heavy Equipment';
@@ -228,7 +237,7 @@ function makeOutdoorStands(): Stand[] {
   for (let row = 0; row < 2; row += 1) {
     for (let col = 0; col < 10; col += 1) {
       const idx = row * 10 + col + 1;
-      const id = `OUT-${String(idx).padStart(3, '0')}`;
+      const id = `O-${String(idx).padStart(3, '0')}`;
       const status: StandStatus = 'outdoor';
 
       stands.push({
